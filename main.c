@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
 	#ifndef __unix__
-		fputs("As of right now, the cpc C+ compiler is only compatible in ", stderr);
+		fputs("As of right now, the hyc Hydro compiler is only compatible in ", stderr);
 		fputs("unix-like operating systems\nIn the future, this will be fixed\n", stderr);
 		// Also, by the way, it wont be fixed, so just get Linux already
 		return 1;
@@ -23,9 +23,10 @@ int main(int argc, char *argv[]) {
 	if (strcmp(argv[1], "--help") == 0 ||
 	 	strcmp(argv[1], "-h") == 0) {
 
-		puts("C+: The Official C+ Compiler");
-		puts("C+ is a Programming Language aimed to have the extensive standard library of C++ with the simple syntax and predictability of C\n");
-		puts("Usage: ./cpc <TARGET FILE> <COMPILE FILE>");
+		puts("hyc: The Official Hydro Compiler");
+		fputs("Hydro is a Lightweight Programming Language aimed to have the", stderr);
+		fputs("extensive standard library and OOP features of C++ with the simple syntax and predictability of C\n\n", stderr);
+		puts("Usage: ./hyc <TARGET FILE> <COMPILE FILE>");
 		return 3;
 	}
 

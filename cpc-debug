@@ -1,1 +1,0 @@
-gcc -g main.c Vec2/charfuncs.c Vec2/doublefuncs.c Vec2/floatfuncs.c Vec2/intfuncs.c Vec2/strfuncs.c lexer/lex.c lexer/lex_vecs.c -O3 $@
