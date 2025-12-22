@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
 	LexStruct *lexed_conts = lex((char *)conts);
 	int errCount = 0;
-	for (long long i = 0; lexed_conts[i].lexeme != '\0'; i++) {
+	for (size_t i = 0; i < lexed_conts[0].length; i++) {
 		if (lexed_conts[i].token == ERR) {
 			errCount++;
 		} else if (lexed_conts[i].token == ABORT) {
@@ -93,6 +93,9 @@ int main(int argc, char *argv[]) {
 	}
 
 	FREE:
+		for (size_t i = 0; i < lexed_conts[0].length; ++i) {
+			free((void *)lexed_conts[i].lexeme);
+		}
 		free(lexed_conts);
 		free(conts);
 		fclose(fPtr);

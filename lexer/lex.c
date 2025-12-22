@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <stdlib.h>
 
 #include "lex_base.h"
 
@@ -124,7 +125,16 @@ LexStruct *lex(char *conts) {
 			}
 			
 			// Automatically push the result to lexeme
-			lexVar.lexeme = conts[i];
+			char *string = malloc(2);
+			if (!string) {
+				fprintf(stderr, "Out of memory\n");
+				exit(1);
+			}
+			string[0] = conts[i];
+			string[1] = '\0';
+
+			lexVar.lexeme = string;
+
 			// Push the result to total vector
 			if ((Vec_push_lex(&total_lex, lexVar)) != 0) {
 				fprintf(stderr, "Failed to push the lexed contents\n");
@@ -133,5 +143,6 @@ LexStruct *lex(char *conts) {
 			count++;
 	}
 	
+	total_lex.conts[0].length = count;
 	return total_lex.conts;
 }
