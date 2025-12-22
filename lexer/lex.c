@@ -103,14 +103,25 @@ LexStruct *lex(char *conts) {
 		} else {
 			digitSearch = false;
 		}
-
+		
+		// Check for operators
 		switch (conts[i]) {
 			case ';':
 				digitSearch = false;
 				lexVar.token = STATE_END;
 				goto PUSH;
 			case '=':
-				lexVar.token = IDENTIFIER;
+				lexVar.token = DEFINER;
+				goto PUSH;
+			case '+':
+			case '-':
+			case '*':
+			case '/':
+				lexVar.token = OPERATOR;
+				goto PUSH;
+			case '>':
+			case '<':
+				lexVar.token = SELECT_OP;
 				goto PUSH;
 			default:
 				break;

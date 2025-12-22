@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	 	strcmp(argv[1], "-h") == 0) {
 
 		puts("hyc: The Official Hydro Compiler");
-		fputs("Hydro is a Lightweight Programming Language aimed to have the", stderr);
+		fputs("Hydro is a Lightweight Programming Language aimed to have the ", stderr);
 		fputs("extensive standard library and OOP features of C++ with the simple syntax and predictability of C\n\n", stderr);
 		puts("Usage: ./hyc <TARGET FILE> <COMPILE FILE>");
 		return 3;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (errCount > 0) {
-		fprintf(stderr, "Compile aborted due to %d %s\n", 
+		fprintf(stderr, "Compile aborted with exit status 1 due to %d %s\n", 
 		  	errCount,
 		  	(errCount > 1) ? "errors" : "error"
 		);

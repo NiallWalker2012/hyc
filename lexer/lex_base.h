@@ -10,8 +10,10 @@ typedef enum {
 	METHOD,
 	DATA_TYPE,
 	VARIABLE,
-	IDENTIFIER,
+	DEFINER,
 	OPERATOR,
+	SEL_OP,	
+	SELECT_OP,
 	PARENTHESIS,
 	DECLARATION,
 	ELSE,
@@ -39,3 +41,4 @@ int Vec_push_lex(lexVec *vecVar, LexStruct content);
 LexStruct *lex(char *character);
 
 #endif
+
