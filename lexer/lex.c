@@ -127,9 +127,11 @@ LexStruct *lex(char *conts) {
 			// Automatically push the result to lexeme
 			char *string = malloc(2);
 			if (!string) {
-				fprintf(stderr, "Out of memory\n");
-				exit(1);
+				perror("malloc");
+				total_lex.conts[0].token = ABORT;
+				return total_lex.conts;
 			}
+
 			string[0] = conts[i];
 			string[1] = '\0';
 
