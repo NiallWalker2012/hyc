@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
 	#ifndef __unix__
 		fputs("As of right now, the hyc Hydro compiler is only compatible in ", stderr);
 		fputs("unix-like operating systems\nIn the future, this will be fixed\n", stderr);
-		// Also, by the way, it wont be fixed, so just get Linux already
 		return 1;
 	#endif
 

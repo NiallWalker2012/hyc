@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include <stdlib.h>
+#include <string.h>
 
 #include "lex_base.h"
 
@@ -125,15 +125,13 @@ LexStruct *lex(char *conts) {
 			}
 			
 			// Automatically push the result to lexeme
-			char *string = malloc(2);
+			char buffer[2] = { conts[i], '\0' };
+			char *string = strdup(buffer);
 			if (!string) {
-				perror("malloc");
+				perror("strdup");
 				total_lex.conts[0].token = ABORT;
 				return total_lex.conts;
 			}
-
-			string[0] = conts[i];
-			string[1] = '\0';
 
 			lexVar.lexeme = string;
 
