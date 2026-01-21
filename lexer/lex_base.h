@@ -2,6 +2,7 @@
 #define LEX_BASE_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 // Lexeme types
 typedef enum {
