@@ -7,6 +7,15 @@
 #include "lex_base.h"
 #include "../Vec2/vector.h"
 
+
+typedef struct {
+	bool elseSearch;
+	bool elseFin;
+	bool autoLex;
+} elseVars;
+
+void elseDisable(elseVars *vars);
+
 // This messy rubbish was made by me!
 LexStruct *lex(char *conts) {
 	lexVec total_lex;
@@ -27,12 +36,17 @@ LexStruct *lex(char *conts) {
 	bool isSingCom = false;
 	bool isMultCom = false;
 	bool multComEnd = false;
-	bool elseSearch = false;
+	
+	elseVars elseV = { false, false, true };
 	// Its probably a really stupid mistake
 	
 
 	for (unsigned __int128 i = 0; conts[i] != '\0'; i++) {
 		LexStruct lexVar;
+
+		if (elseV.elseFin) {
+			lexVar.token = ELSE;
+		}
 		
 		// Once apon a time I was a never-nester...
 		if (isSingCom) {
@@ -82,21 +96,24 @@ LexStruct *lex(char *conts) {
 		if (digitSearch) {
 			if (isdigit(conts[i])) {
 				lexVar.token = DIGIT;
+				elseDisable(&elseV);
 				goto PUSH;
 			} else if (conts[i] == '.') {
 				decCount++;
 				if (decCount > 1) {
-					// Ultra-wide monitor is necessary
 					fprintf(stderr, "Error on line %d: Invalid number due to multiple decimal points\n\n", lineCount + 1);
 					lexVar.token = ERR;
 					errCount++;
+				    elseDisable(&elseV);
 					goto PUSH;
 				}
 				lexVar.token = D_POINT;
+				elseDisable(&elseV);
 				goto PUSH;
 			} else {
 				digitSearch = false;
 				decCount = 0;
+				elseDisable(&elseV);
 				goto PUSH;
 			}
 		}
@@ -104,6 +121,7 @@ LexStruct *lex(char *conts) {
 		if (isdigit(conts[i])) {
 			lexVar.token = DIGIT;
 			digitSearch = true;
+			elseDisable(&elseV);
 			goto PUSH;
 		} else {
 			digitSearch = false;
@@ -114,25 +132,31 @@ LexStruct *lex(char *conts) {
 			case ';':
 				digitSearch = false;
 				lexVar.token = STATE_END;
+				elseDisable(&elseV);
 				goto PUSH;
 			case '=':
 				lexVar.token = DEFINER;
+				elseDisable(&elseV);
 				goto PUSH;
 			case '+':
 			case '-':
 			case '*':
 			case '/':
 				lexVar.token = OPERATOR;
+				elseDisable(&elseV);
 				goto PUSH;
 			case '>':
 			case '<':
 				lexVar.token = SELECT_OP;
+				elseDisable(&elseV);
 				goto PUSH;
 			default:
 				break;
 		}
 
 		Vec_push_char(&elseLex, conts[i]);
+		elseV.elseSearch = true;
+		elseV.autoLex = false;
 		
 		PUSH:
 			// Ensure that there aren't over 20 errors
@@ -150,17 +174,25 @@ LexStruct *lex(char *conts) {
 				total_lex.conts[0].token = ABORT;
 				return total_lex.conts;
 			}
-
-			lexVar.lexeme = string;
-
-			// Push the result to total vector
-			if ((Vec_push_lex(&total_lex, lexVar)) != 0) {
-				fprintf(stderr, "Failed to push the lexed contents\n");
-			}	
+			
+			if (elseV.autoLex) {
+				lexVar.lexeme = string;
+				// Push the result to total vector
+				if ((Vec_push_lex(&total_lex, lexVar)) != 0) {
+					fprintf(stderr, "Failed to push the lexed contents\n");
+				}	
+			}
 
 			count++;
 	}
 	
 	total_lex.conts[0].length = count;
 	return total_lex.conts;
+}
+
+void elseDisable(elseVars *vars) {
+	vars->elseSearch = false;
+	vars->elseFin = false;
+	vars->autoLex = true;
+	return;
 }
