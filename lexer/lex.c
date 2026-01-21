@@ -8,12 +8,6 @@
 #include "../Vec2/vector.h"
 
 
-typedef struct {
-	bool elseSearch;
-	bool elseFin;
-	bool autoLex;
-} elseVars;
-
 void elseDisable(elseVars *vars);
 
 // This messy rubbish was made by me!

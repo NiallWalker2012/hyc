@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+// Lexeme types
 typedef enum {
 	FUNCTION,
 	DIGIT,
@@ -35,10 +36,19 @@ typedef struct {
 	LexStruct *conts;
 } lexVec;
 
-
+// lex_vecs.c
 void Vec_new_lex(lexVec *vecVar);
 int Vec_push_lex(lexVec *vecVar, LexStruct content);
+
+// lex.c
+typedef struct {
+	bool elseSearch;
+	bool elseFin;
+	bool autoLex;
+} elseVars;
+
 LexStruct *lex(char *character);
+void elseDisable(elseVars *vars);
 
 #endif
 
