@@ -41,46 +41,6 @@ typedef struct {
 
 
 
-
-// # Definitions for generic functions:
-
-// Vec_new functions:
-#define Vec_new(x) _Generic((x),    \
-    strVec*: Vec_new_str,           \
-    intVec*: Vec_new_int,           \
-    charVec*: Vec_new_char,         \
-    doubleVec*: Vec_new_double,     \
-    floatVec*: Vec_new_float,       \
-)(x)
-
-// Vec_push functions:
-#define Vec_push(x, y) _Generic((x), \
-    strVec*: Vec_push_str,              \
-    intVec*: Vec_push_int,              \
-    charVec*: Vec_push_char,            \
-    doubleVec*: Vec_push_double,        \
-    floatVec*: Vec_push_float,          \
-)(x, y)
-
-// Vec_get functions:
-#define Vec_get(x, y) _Generic((x), \
-    strVec*: Vec_get_str,           \
-    intVec*: Vec_get_int,           \
-    charVec*: Vec_get_char,         \
-    doubleVec*: Vec_get_double,     \
-    floatVec*: Vec_get_float,        \
-)(x, y)
-
-// Vec_free functions:
-#define Vec_free(x) _Generic((x), \
-    strVec*: Vec_free_str,        \
-    intVec*: Vec_free_int,        \
-    charVec*: Vec_free_char,      \
-    doubleVec*: Vec_free_double,  \
-    floatVec*: Vec_free_float,     \
-)(x)
-
-
 // String functions
 void Vec_new_str(strVec *vecVar);
 void Vec_push_str(strVec *vecVar, char *conts);

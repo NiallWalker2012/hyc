@@ -5,11 +5,15 @@
 #include <string.h>
 
 #include "lex_base.h"
+#include "../Vec2/vector.h"
 
 // This messy rubbish was made by me!
 LexStruct *lex(char *conts) {
 	lexVec total_lex;
 	Vec_new_lex(&total_lex);
+
+	charVec elseLex;
+	Vec_new_char(&elseLex);
 
 	// For some reason, if I don't initialise seperately 
 	// weird things start happening
@@ -23,6 +27,7 @@ LexStruct *lex(char *conts) {
 	bool isSingCom = false;
 	bool isMultCom = false;
 	bool multComEnd = false;
+	bool elseSearch = false;
 	// Its probably a really stupid mistake
 	
 
@@ -126,6 +131,8 @@ LexStruct *lex(char *conts) {
 			default:
 				break;
 		}
+
+		Vec_push_char(&elseLex, conts[i]);
 		
 		PUSH:
 			// Ensure that there aren't over 20 errors
