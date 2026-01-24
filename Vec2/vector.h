@@ -55,7 +55,7 @@ void Vec_free_int(intVec *vecVar);
 
 // Char functions
 void Vec_new_char(charVec *vecVar);
-void Vec_push_char(charVec *vecVar, char conts);
+int Vec_push_char(charVec *vecVar, char conts);
 char Vec_get_char(charVec *vecVar, int index);
 void Vec_free_char(charVec *vecVar);
 

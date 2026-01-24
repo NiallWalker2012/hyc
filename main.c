@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
 	#ifndef __unix__
 		fputs("As of right now, the hyc Hydro compiler is only compatible in ", stderr);
 		fputs("unix-like operating systems\nIn the future, this will be fixed\n", stderr);
-		return 1;
+		return 4;
 	#endif
 
 	int exit_code = 0;
@@ -73,8 +73,10 @@ int main(int argc, char *argv[]) {
 	conts[size] = '\0';
 
 	LexStruct *lexed_conts = lex((char *)conts);
+
 	int errCount = 0;
-	for (size_t i = 0; i < lexed_conts[0].length; i++) {
+
+	for (long int i = 0; i < lexed_conts[0].length; i++) {
 		if (lexed_conts[i].token == ERR) {
 			errCount++;
 		} else if (lexed_conts[i].token == ABORT) {
@@ -91,13 +93,19 @@ int main(int argc, char *argv[]) {
 		exit_code = 1;
 	}
 
+
 	FREE:
-		for (size_t i = 0; i < lexed_conts[0].length; ++i) {
-			free((void *)lexed_conts[i].lexeme);
+		for (long int i = 0; i < lexed_conts[0].length; i++) {
+			if (lexed_conts[i].lexeme != NULL) {
+				free((void *)lexed_conts[i].lexeme);
+			}
 		}
+		
 		free(lexed_conts);
 		free(conts);
+
 		fclose(fPtr);
+
 
 		return exit_code;
 }

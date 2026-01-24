@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "lex_base.h"
 #include "../Vec2/vector.h"
@@ -22,7 +23,7 @@ LexStruct *lex(char *conts) {
 	// weird things start happening
 	// No idea why lol
 	int decCount = 0;
-	int count = 0;
+	total_lex.conts[0].length = 0;
 	int lineCount = 0;
 	int errCount = 0;
 	bool digitSearch = false;
@@ -90,7 +91,6 @@ LexStruct *lex(char *conts) {
 		if (digitSearch) {
 			if (isdigit(conts[i])) {
 				lexVar.token = DIGIT;
-				elseDisable(&elseV);
 				goto PUSH;
 			} else if (conts[i] == '.') {
 				decCount++;
@@ -98,16 +98,13 @@ LexStruct *lex(char *conts) {
 					fprintf(stderr, "Error on line %d: Invalid number due to multiple decimal points\n\n", lineCount + 1);
 					lexVar.token = ERR;
 					errCount++;
-				    elseDisable(&elseV);
 					goto PUSH;
 				}
 				lexVar.token = D_POINT;
-				elseDisable(&elseV);
 				goto PUSH;
 			} else {
 				digitSearch = false;
 				decCount = 0;
-				elseDisable(&elseV);
 				goto PUSH;
 			}
 		}
@@ -115,7 +112,6 @@ LexStruct *lex(char *conts) {
 		if (isdigit(conts[i])) {
 			lexVar.token = DIGIT;
 			digitSearch = true;
-			elseDisable(&elseV);
 			goto PUSH;
 		} else {
 			digitSearch = false;
@@ -130,57 +126,65 @@ LexStruct *lex(char *conts) {
 				goto PUSH;
 			case '=':
 				lexVar.token = DEFINER;
-				elseDisable(&elseV);
 				goto PUSH;
 			case '+':
 			case '-':
 			case '*':
 			case '/':
 				lexVar.token = OPERATOR;
-				elseDisable(&elseV);
 				goto PUSH;
 			case '>':
 			case '<':
 				lexVar.token = SELECT_OP;
-				elseDisable(&elseV);
 				goto PUSH;
+			case ' ':
+				if (elseV.elseSearch) {
+					elseDisable(&elseV);
+					lexVar.token = FUNCTION;
+					lexVar.lexeme = elseLex.conts;
+					elseV.autoLex = false;
+					goto PUSH;
+				}
+				continue;
 			default:
 				break;
 		}
 
-		Vec_push_char(&elseLex, conts[i]);
-		elseV.elseSearch = true;
-		elseV.autoLex = false;
-		
 		PUSH:
 			// Ensure that there aren't over 20 errors
 			if (errCount > 20) {
 				fprintf(stderr, "\nCompile aborted as error-count has exceded 20\n");
 				total_lex.conts[0].token = ABORT;
+				free(elseLex.conts);
 				return total_lex.conts;
 			}
 			
-			// Automatically push the result to lexeme
-			char buffer[2] = { conts[i], '\0' };
-			char *string = strdup(buffer);
-			if (!string) {
-				perror("strdup");
-				total_lex.conts[0].token = ABORT;
-				return total_lex.conts;
-			}
-			
+			// Only allocate if we're going to use it
 			if (elseV.autoLex) {
+				// Automatically push the result to lexeme
+				char buffer[2] = { conts[i], '\0' };
+				char *string = strdup(buffer);
+				if (!string) {
+					perror("strdup");
+					total_lex.conts[0].token = ABORT;
+					free(elseLex.conts);
+					return total_lex.conts;
+				}
+				
 				lexVar.lexeme = string;
 				// Push the result to total vector
 				if ((Vec_push_lex(&total_lex, lexVar)) != 0) {
 					fprintf(stderr, "Failed to push the lexed contents\n");
+					total_lex.conts[0].token = ABORT;
+					free(elseLex.conts);
+					return total_lex.conts;
 				}	
 			}
-
-			count++;
+			total_lex.conts[0].length++;
 	}
+	// Free elseLex buffer (conts is owned by lexemes now)
+	free(elseLex.conts);
 	
-	total_lex.conts[0].length = count;
 	return total_lex.conts;
 }
 

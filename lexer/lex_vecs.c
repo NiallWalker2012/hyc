@@ -18,7 +18,7 @@ int Vec_push_lex(lexVec *vecVar, LexStruct conts) {
 	size_t index = vecVar->size;
 	vecVar->size++;
 	if (vecVar->size >= vecVar->capacity) {
-		vecVar->capacity += 4;
+		vecVar->capacity *= 2;
 		LexStruct *newData = realloc(vecVar->conts, vecVar->capacity * sizeof(LexStruct));
 		if (!newData) {
 			free(vecVar->conts);

@@ -27,7 +27,7 @@ typedef enum {
 typedef struct {
 	LexType token; 
 	const char *lexeme;
-	size_t length;
+	long int length;
 } LexStruct;
 
 // Lex vector structure

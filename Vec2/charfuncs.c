@@ -13,7 +13,7 @@ void Vec_new_char(charVec *vecVar) {
 	return;
 }
 
-void Vec_push_char(charVec *vecVar, char conts) {
+int Vec_push_char(charVec *vecVar, char conts) {
 	size_t index = vecVar->size;
 	vecVar->size++;
 	if (vecVar->size >= vecVar->capacity) {
@@ -21,11 +21,11 @@ void Vec_push_char(charVec *vecVar, char conts) {
 		if ((vecVar->conts = realloc(vecVar->conts, vecVar->capacity * sizeof(char))) == NULL) {
 			free(vecVar->conts);
 			perror("realloc");
-			exit(1);
+			return 1;
 		}
 	}
 	vecVar->conts[index] = conts;
-	return;
+	return 0;
 }
 
 char Vec_get_char(charVec *vecVar, int index) {
