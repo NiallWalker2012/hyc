@@ -51,5 +51,20 @@ typedef struct {
 LexStruct *lex(char *character);
 void elseDisable(elseVars *vars);
 
+
+// # Checks for data types e.g. int; functions e.g. print("...");
+
+// data_type_check.c
+bool isDataType(const char *string);
+
+// func_check.c
+typedef struct {
+	const char *type;
+	char value[256];
+} FuncResult;
+
+void slice(const char *string, char *result, size_t start, size_t end);
+FuncResult isFunc(const char *string);
+
 #endif
 

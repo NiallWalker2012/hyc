@@ -19,7 +19,7 @@ LexStruct *lex(char *conts) {
 	charVec elseLex;
 	Vec_new_char(&elseLex);
 
-	// For some reason, if I don't initialise seperately 
+	// For some reason, if I don't initialise separately
 	// weird things start happening
 	// No idea why lol
 	int decCount = 0;
@@ -31,18 +31,47 @@ LexStruct *lex(char *conts) {
 	bool isSingCom = false;
 	bool isMultCom = false;
 	bool multComEnd = false;
+	bool elseCheck = false;
+	bool varNameCheck = false;
 	
 	elseVars elseV = { false, false, true };
-	// Its probably a really stupid mistake
-	
+	// It's probably a really stupid mistake
 
 	for (unsigned __int128 i = 0; conts[i] != '\0'; i++) {
 		LexStruct lexVar;
 
+		// Check for line
+		if (conts[i] == '\n') {
+			lineCount++;
+		}
+
+		if (varNameCheck) {
+			if (conts[i] == ' ') {
+				// Give space 
+				continue;
+			} else {
+				// Push each character to variable until ' ' found
+			}
+		}
+
+		if (elseCheck) {
+			if (isDataType(lexVar.lexeme)) {
+				varNameCheck = true;
+			} else {
+				FuncResult func_check_result = isFunc(lexVar.lexeme);
+				if (strcmp(func_check_result.type, "err") == 0) {
+					fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
+
+					lexVar.token = ERR;
+					errCount++;
+					goto PUSH;
+				}
+			}
+		}
 		if (elseV.elseFin) {
 			lexVar.token = ELSE;
 		}
-		
+
 		// Once apon a time I was a never-nester...
 		if (isSingCom) {
 			if (conts[i] == '\n') {
@@ -78,10 +107,7 @@ LexStruct *lex(char *conts) {
 			commentSearch = false;
 		}
 
-		// Check for line
-		if (conts[i] == '\n') {
-			lineCount++;
-		}
+
 		// Check for start of comment
 		if (conts[i] == '/') {
 			commentSearch = true;

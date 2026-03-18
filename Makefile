@@ -10,10 +10,12 @@ SRCS := \
 	Vec2/intfuncs.c \
 	Vec2/strfuncs.c \
 	lexer/lex.c \
-	lexer/lex_vecs.c
+	lexer/lex_vecs.c \
+	lexer/data_type_check.c \
+	lexer/func_check.c
 
 all:
-	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(SRCS) -o $(TARGET) -O3
 
 clean:
 	rm -f $(TARGET)

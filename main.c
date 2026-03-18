@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 	#endif
 
 	int exit_code = 0;
-	// Valdate the command line arguments and print necessary messages
+	// Validate the command line arguments and print necessary messages
 	if (argc == 1) {
 		puts("No expected arguments found\nRun with --help for more info");
 		return 2;
