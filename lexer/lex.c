@@ -58,7 +58,7 @@ LexStruct *lex(char *conts) {
 			if (isDataType(lexVar.lexeme)) {
 				varNameCheck = true;
 			} else {
-				FuncResult func_check_result = isFunc(lexVar.lexeme);
+				FuncResult func_check_result = isFunc(elseLex.conts);
 				if (strcmp(func_check_result.type, "err") == 0) {
 					fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
 
@@ -67,6 +67,7 @@ LexStruct *lex(char *conts) {
 					goto PUSH;
 				}
 			}
+			elseCheck = false;
 		}
 		if (elseV.elseFin) {
 			lexVar.token = ELSE;
@@ -146,6 +147,7 @@ LexStruct *lex(char *conts) {
 		// Check for operators
 		switch (conts[i]) {
 			case ';':
+				elseCheck = true;
 				digitSearch = false;
 				lexVar.token = STATE_END;
 				elseDisable(&elseV);
@@ -175,6 +177,16 @@ LexStruct *lex(char *conts) {
 			default:
 				break;
 		}
+
+		// Push to string variable if not ideentified before
+	    if ((Vec_push_char(&elseLex, conts[i])) != 0) {
+		    fprintf(stderr, "Failed to push the lexed contents for function searching\n");
+	    	total_lex.conts[0].token = ABORT;
+	    	free(elseLex.conts);
+	    	return total_lex.conts;
+	    }
+		// Skip usual pushing if searching for a function/variable declaration etc.
+		continue;
 
 		PUSH:
 			// Ensure that there aren't over 20 errors
