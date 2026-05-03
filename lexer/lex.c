@@ -33,6 +33,7 @@ LexStruct *lex(char *conts) {
 	bool multComEnd = false;
 	bool elseCheck = false;
 	bool varNameCheck = false;
+	bool isSpace = false;
 	
 	elseVars elseV = { false, false, true };
 	// It's probably a really stupid mistake
@@ -54,21 +55,7 @@ LexStruct *lex(char *conts) {
 			}
 		}
 
-		if (elseCheck) {
-			if (isDataType(lexVar.lexeme)) {
-				varNameCheck = true;
-			} else {
-				FuncResult func_check_result = isFunc(elseLex.conts);
-				if (strcmp(func_check_result.type, "err") == 0) {
-					fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
 
-					lexVar.token = ERR;
-					errCount++;
-					goto PUSH;
-				}
-			}
-			elseCheck = false;
-		}
 		if (elseV.elseFin) {
 			lexVar.token = ELSE;
 		}
@@ -146,12 +133,14 @@ LexStruct *lex(char *conts) {
 		
 		// Check for operators
 		switch (conts[i]) {
-			case ';':
+			// Need to organise the overlap between ' '
+			/* case ';':
 				elseCheck = true;
 				digitSearch = false;
 				lexVar.token = STATE_END;
 				elseDisable(&elseV);
 				goto PUSH;
+			*/
 			case '=':
 				lexVar.token = DEFINER;
 				goto PUSH;
@@ -165,15 +154,44 @@ LexStruct *lex(char *conts) {
 			case '<':
 				lexVar.token = SELECT_OP;
 				goto PUSH;
-			case ' ':
+			case ';':
 				if (elseV.elseSearch) {
 					elseDisable(&elseV);
-					lexVar.token = FUNCTION;
 					lexVar.lexeme = elseLex.conts;
 					elseV.autoLex = false;
 					goto PUSH;
 				}
+				// The function, keyword and variable etc. searching roles should be implemented here, will check later
+				/*
+				if (elseCheck) {
+					// Check for data type
+					if (isDataType(lexVar.lexeme)) {
+						varNameCheck = true;
+					} else {
+						// Check for function declaration
+						FuncResult func_check_result = isFunc(elseLex.conts);
+						if (strcmp(func_check_result.type, "err") == 0) {
+							fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
+
+							lexVar.token = ERR;
+							errCount++;
+							goto PUSH;
+						}
+					}
+					elseCheck = false;
+				}
+				*/
+				elseCheck = true;
+				digitSearch = false;
+				lexVar.token = FUNCTION;
+				elseDisable(&elseV);
 				continue;
+			case ' ':
+				// I think there will have to be additional handling for a space e.g. for setting names of variables
+				// For now, i will leave an indicator (isSpace) and handle it like other characters
+				isSpace = true;
+				lexVar.token = SPACE;
+				goto PUSH;
 			default:
 				break;
 		}

@@ -1,0 +1,1 @@
+Existing code can be tested by running ./hydro test/test.hydr test

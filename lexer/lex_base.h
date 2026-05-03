@@ -22,6 +22,7 @@ typedef enum {
 	ERR,
 	ABORT,
 	STATE_END,
+	SPACE,
 } LexType;
 
 typedef struct {
