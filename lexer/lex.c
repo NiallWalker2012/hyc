@@ -22,17 +22,23 @@ LexStruct *lex(char *conts) {
 	// For some reason, if I don't initialise separately
 	// weird things start happening
 	// No idea why lol
-	int decCount = 0;
 	total_lex.conts[0].length = 0;
 	int lineCount = 0;
 	int errCount = 0;
+	int decCount = 0;
+
 	bool digitSearch = false;
+
 	bool commentSearch = false;
 	bool isSingCom = false;
 	bool isMultCom = false;
 	bool multComEnd = false;
+
 	bool elseCheck = false;
+	bool elseFree = false;
+
 	bool varNameCheck = false;
+
 	bool isSpace = false;
 	
 	elseVars elseV = { false, false, true };
@@ -60,7 +66,6 @@ LexStruct *lex(char *conts) {
 			lexVar.token = ELSE;
 		}
 
-		// Once apon a time I was a never-nester...
 		if (isSingCom) {
 			if (conts[i] == '\n') {
 				isSingCom = false;
@@ -133,14 +138,6 @@ LexStruct *lex(char *conts) {
 		
 		// Check for operators
 		switch (conts[i]) {
-			// Need to organise the overlap between ' '
-			/* case ';':
-				elseCheck = true;
-				digitSearch = false;
-				lexVar.token = STATE_END;
-				elseDisable(&elseV);
-				goto PUSH;
-			*/
 			case '=':
 				lexVar.token = DEFINER;
 				goto PUSH;
@@ -155,37 +152,32 @@ LexStruct *lex(char *conts) {
 				lexVar.token = SELECT_OP;
 				goto PUSH;
 			case ';':
-				if (elseV.elseSearch) {
-					elseDisable(&elseV);
-					lexVar.lexeme = elseLex.conts;
-					elseV.autoLex = false;
+				// Ends the current elseSearch, returning value for function checking
+				if (!elseCheck) {
+					fprintf(stderr, "Error on line %d: Unexpected ';' statement\n", lineCount + 1);
+					lexVar.token = ERR;
+					errCount++;
 					goto PUSH;
 				}
-				// The function, keyword and variable etc. searching roles should be implemented here, will check later
-				/*
-				if (elseCheck) {
-					// Check for data type
-					if (isDataType(lexVar.lexeme)) {
-						varNameCheck = true;
-					} else {
-						// Check for function declaration
-						FuncResult func_check_result = isFunc(elseLex.conts);
-						if (strcmp(func_check_result.type, "err") == 0) {
-							fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
+				if (isDataType(lexVar.lexeme)) {
+					varNameCheck = true;
+				} else {
+					// Check for function declaration
+					FuncResult func_check_result = isFunc(elseLex.conts);
+					if (strcmp(func_check_result.type, "err") == 0) {
+						fprintf(stderr, "Error on line %d:	%s\n", lineCount + 1, func_check_result.value);
 
-							lexVar.token = ERR;
-							errCount++;
-							goto PUSH;
-						}
+						lexVar.token = ERR;
+						errCount++;
+						goto PUSH;
 					}
-					elseCheck = false;
 				}
-				*/
-				elseCheck = true;
+				elseCheck = false;
 				digitSearch = false;
+				elseFree = true;
 				lexVar.token = FUNCTION;
 				elseDisable(&elseV);
-				continue;
+				goto PUSH;
 			case ' ':
 				// I think there will have to be additional handling for a space e.g. for setting names of variables
 				// For now, i will leave an indicator (isSpace) and handle it like other characters
@@ -196,11 +188,13 @@ LexStruct *lex(char *conts) {
 				break;
 		}
 
-		// Push to string variable if not ideentified before
+
+		// Push to string variable if not identified before
 	    if ((Vec_push_char(&elseLex, conts[i])) != 0) {
 		    fprintf(stderr, "Failed to push the lexed contents for function searching\n");
 	    	total_lex.conts[0].token = ABORT;
 	    	free(elseLex.conts);
+	    	elseCheck = true;
 	    	return total_lex.conts;
 	    }
 		// Skip usual pushing if searching for a function/variable declaration etc.
@@ -211,8 +205,14 @@ LexStruct *lex(char *conts) {
 			if (errCount > 20) {
 				fprintf(stderr, "\nCompile aborted as error-count has exceded 20\n");
 				total_lex.conts[0].token = ABORT;
-				free(elseLex.conts);
+				Vec_free_char(&elseLex);
 				return total_lex.conts;
+			}
+
+			if (elseFree) {
+				printf("%s\n", elseLex.conts);
+				Vec_free_char(&elseLex);
+				continue;
 			}
 			
 			// Only allocate if we're going to use it
@@ -223,7 +223,7 @@ LexStruct *lex(char *conts) {
 				if (!string) {
 					perror("strdup");
 					total_lex.conts[0].token = ABORT;
-					free(elseLex.conts);
+					Vec_free_char(&elseLex);
 					return total_lex.conts;
 				}
 				
@@ -232,15 +232,13 @@ LexStruct *lex(char *conts) {
 				if ((Vec_push_lex(&total_lex, lexVar)) != 0) {
 					fprintf(stderr, "Failed to push the lexed contents\n");
 					total_lex.conts[0].token = ABORT;
-					free(elseLex.conts);
+					Vec_free_char(&elseLex);
 					return total_lex.conts;
 				}	
 			}
 			total_lex.conts[0].length++;
 	}
-	// Free elseLex buffer (conts is owned by lexemes now)
-	free(elseLex.conts);
-	
+
 	return total_lex.conts;
 }
 
